@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🥛 Milk Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --card2: #1c2330;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #f78166;
+    --accent4: #e3b341;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --input-bg: #0d1117;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans', sans-serif;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #58a6ff, #3fb950);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  /* SUMMARY CARDS */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .summary-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .card-blue::before { background: var(--accent); }
+  .card-green::before { background: var(--accent2); }
+  .card-yellow::before { background: var(--accent4); }
+  .card-red::before { background: var(--accent3); }
+
+  .summary-icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .summary-value {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .card-blue .summary-value { color: var(--accent); }
+  .card-green .summary-value { color: var(--accent2); }
+  .card-yellow .summary-value { color: var(--accent4); }
+  .card-red .summary-value { color: var(--accent3); }
+
+  .summary-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* SECTIONS */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* FORM */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+
+  label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  input {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 11px;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: 'Noto Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  input:focus { border-color: var(--accent); }
+
+  .btn {
+    border: none;
+    border-radius: 9px;
+    padding: 10px 16px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #1f6feb, #388bfd);
+    color: white;
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(56,139,253,0.3); }
+
+  .btn-success {
+    background: linear-gradient(135deg, #2ea043, #3fb950);
+    color: white;
+  }
+
+  .btn-export {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--accent4);
+    font-size: 0.85rem;
+    padding: 8px 12px;
+    width: auto;
+  }
+
+  .btn-export:hover { border-color: var(--accent4); }
+
+  /* PRICE SETTING */
+  .price-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .price-row .form-group { flex: 1; }
+
+  /* TABLE */
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .table-scroll { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  thead tr {
+    background: var(--card2);
+  }
+
+  th {
+    padding: 10px 10px;
+    text-align: left;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--card2); }
+
+  .qty-badge {
+    background: rgba(63,185,80,0.15);
+    color: var(--accent2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-weight: 600;
+    font-size: 0.82rem;
+  }
+
+  .price-text { color: var(--accent4); font-weight: 600; }
+
+  .action-btns { display: flex; gap: 6px; }
+
+  .btn-sm {
+    border: none;
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Noto Sans', sans-serif;
+  }
+
+  .btn-edit { background: rgba(56,139,253,0.15); color: var(--accent); }
+  .btn-edit:hover { background: rgba(56,139,253,0.3); }
+  .btn-del { background: rgba(247,129,102,0.15); color: var(--accent3); }
+  .btn-del:hover { background: rgba(247,129,102,0.3); }
+
+  .empty-msg {
+    text-align: center;
+    color: var(--muted);
+    padding: 30px;
+    font-size: 0.9rem;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--card2);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: transform 0.3s ease;
+    z-index: 999;
+    white-space: nowrap;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .modal-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--accent);
+  }
+
+  .modal-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+  }
+
+  .btn-cancel {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .start-date-info {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .start-date-info span { color: var(--accent); font-weight: 600; }
+
+  .avg-badge {
+    background: rgba(88,166,255,0.1);
+    color: var(--accent);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.78rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>🥛 Milk Tracker</h1>
+<p class="subtitle">Ghar ka dudh — hisaab bilkul sahi!</p>
+
+<!-- SUMMARY CARDS -->
+<div class="summary-grid">
+  <div class="summary-card card-blue">
+    <div class="summary-icon">📅</div>
+    <div class="summary-value" id="totalDays">0</div>
+    <div class="summary-label">Total Din</div>
+  </div>
+  <div class="summary-card card-green">
+    <div class="summary-icon">🥛</div>
+    <div class="summary-value" id="totalLiters">0L</div>
+    <div class="summary-label">Total Milk</div>
+  </div>
+  <div class="summary-card card-yellow">
+    <div class="summary-icon">💰</div>
+    <div class="summary-value" id="totalCost">₹0</div>
+    <div class="summary-label">Total Kharcha</div>
+  </div>
+  <div class="summary-card card-red">
+    <div class="summary-icon">📊</div>
+    <div class="summary-value" id="avgPerDay">0L</div>
+    <div class="summary-label">Avg / Din</div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="section">
+  <div class="section-title">⚙️ Settings</div>
+  <div class="start-date-info">
+    <span>Starting Date:</span>
+    <span id="startDateDisplay">Set nahi hua</span>
+  </div>
+  <div class="price-row">
+    <div class="form-group">
+      <label>💰 Price per Liter (₹)</label>
+      <input type="number" id="pricePerLiter" placeholder="e.g. 60" min="0" step="0.5">
+    </div>
+    <button class="btn btn-primary" style="width:auto;padding:9px 16px;" onclick="saveSettings()">Save</button>
+  </div>
+</div>
+
+<!-- ADD ENTRY -->
+<div class="section">
+  <div class="section-title">➕ Naya Entry Add Karo</div>
+  <div class="form-row">
+    <div class="form-group">
+      <label>📅 Date</label>
+      <input type="date" id="entryDate">
+    </div>
+    <div class="form-group">
+      <label>🥛 Kitna Milk (L)</label>
+      <input type="number" id="entryQty" placeholder="e.g. 1.5" min="0" step="0.5">
+    </div>
+  </div>
+  <button class="btn btn-success" onclick="addEntry()">✅ Entry Save Karo</button>
+</div>
+
+<!-- TABLE -->
+<div class="section">
+  <div class="table-header">
+    <div class="section-title" style="margin-bottom:0;">📋 Sab Entries</div>
+    <button class="btn btn-export" onclick="exportCSV()">⬇️ CSV</button>
+  </div>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Milk</th>
+          <th>Kharcha</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="entriesTable">
+        <tr><td colspan="5" class="empty-msg">Koi entry nahi abhi 🥛</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title">✏️ Entry Edit Karo</div>
+    <input type="hidden" id="editIndex">
+    <div class="form-group" style="margin-bottom:12px;">
+      <label>📅 Date</label>
+      <input type="date" id="editDate">
+    </div>
+    <div class="form-group">
+      <label>🥛 Kitna Milk (L)</label>
+      <input type="number" id="editQty" min="0" step="0.5">
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-cancel" onclick="closeModal()">❌ Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">✅ Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let data = JSON.parse(localStorage.getItem('milkTracker') || '{"entries":[],"pricePerLiter":60,"startDate":null}');
+
+  // Set today's date as default
+  document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('pricePerLiter').value = data.pricePerLiter || '';
+
+  function saveSettings() {
+    const price = parseFloat(document.getElementById('pricePerLiter').value);
+    if (isNaN(price) || price < 0) { showToast('❌ Sahi price daalo!'); return; }
+    data.pricePerLiter = price;
+    saveData();
+    renderTable();
+    updateSummary();
+    showToast('✅ Settings save ho gaya!');
+  }
+
+  function addEntry() {
+    const date = document.getElementById('entryDate').value;
+    const qty = parseFloat(document.getElementById('entryQty').value);
+
+    if (!date) { showToast('❌ Tarikh daalo!'); return; }
+    if (isNaN(qty) || qty <= 0) { showToast('❌ Sahi quantity daalo!'); return; }
+
+    // Check duplicate
+    const dup = data.entries.find(e => e.date === date);
+    if (dup) { showToast('⚠️ Is tarikh ki entry pehle se hai!'); return; }
+
+    data.entries.push({ date, qty });
+    data.entries.sort((a, b) => a.date.localeCompare(b.date));
+
+    // Auto-set start date
+    if (!data.startDate) {
+      data.startDate = data.entries[0].date;
+    } else {
+      data.startDate = data.entries[0].date;
+    }
+
+    document.getElementById('entryQty').value = '';
+    saveData();
+    renderTable();
+    updateSummary();
+    showToast('✅ Entry add ho gaya!');
+  }
+
+  function deleteEntry(index) {
+    if (!confirm('Is entry ko delete karein?')) return;
+    data.entries.splice(index, 1);
+    if (data.entries.length > 0) {
+      data.startDate = data.entries[0].date;
+    } else {
+      data.startDate = null;
+    }
+    saveData();
+    renderTable();
+    updateSummary();
+    showToast('🗑️ Entry delete ho gaya!');
+  }
+
+  function openEdit(index) {
+    const entry = data.entries[index];
+    document.getElementById('editIndex').value = index;
+    document.getElementById('editDate').value = entry.date;
+    document.getElementById('editQty').value = entry.qty;
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('editModal').classList.remove('open');
+  }
+
+  function saveEdit() {
+    const index = parseInt(document.getElementById('editIndex').value);
+    const date = document.getElementById('editDate').value;
+    const qty = parseFloat(document.getElementById('editQty').value);
+
+    if (!date || isNaN(qty) || qty <= 0) { showToast('❌ Sahi data daalo!'); return; }
+
+    // Duplicate check (except self)
+    const dup = data.entries.find((e, i) => e.date === date && i !== index);
+    if (dup) { showToast('⚠️ Is tarikh ki entry pehle se hai!'); return; }
+
+    data.entries[index] = { date, qty };
+    data.entries.sort((a, b) => a.date.localeCompare(b.date));
+    data.startDate = data.entries[0].date;
+
+    saveData();
+    renderTable();
+    updateSummary();
+    closeModal();
+    showToast('✅ Entry update ho gaya!');
+  }
+
+  function formatDate(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('entriesTable');
+    if (data.entries.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Koi entry nahi abhi 🥛</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.entries.map((e, i) => {
+      const cost = (e.qty * (data.pricePerLiter || 0)).toFixed(2);
+      return `<tr>
+        <td style="color:var(--muted);font-size:0.78rem;">${i + 1}</td>
+        <td style="font-size:0.82rem;">${formatDate(e.date)}</td>
+        <td><span class="qty-badge">${e.qty}L</span></td>
+        <td class="price-text">₹${cost}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-sm btn-edit" onclick="openEdit(${i})">✏️</button>
+            <button class="btn-sm btn-del" onclick="deleteEntry(${i})">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateSummary() {
+    const entries = data.entries;
+    const totalDays = entries.length;
+    const totalLiters = entries.reduce((s, e) => s + e.qty, 0);
+    const totalCost = totalLiters * (data.pricePerLiter || 0);
+    const avg = totalDays > 0 ? (totalLiters / totalDays).toFixed(2) : 0;
+
+    document.getElementById('totalDays').textContent = totalDays;
+    document.getElementById('totalLiters').textContent = totalLiters.toFixed(1) + 'L';
+    document.getElementById('totalCost').textContent = '₹' + totalCost.toFixed(0);
+    document.getElementById('avgPerDay').textContent = avg + 'L';
+
+    if (data.startDate) {
+      document.getElementById('startDateDisplay').textContent = formatDate(data.startDate);
+    } else {
+      document.getElementById('startDateDisplay').textContent = 'Set nahi hua';
+    }
+  }
+
+  function exportCSV() {
+    if (data.entries.length === 0) { showToast('❌ Koi data nahi export ke liye!'); return; }
+    let csv = 'Tarikh,Dudh (L),Kharcha (Rs)\n';
+    data.entries.forEach(e => {
+      const cost = (e.qty * (data.pricePerLiter || 0)).toFixed(2);
+      csv += `${e.date},${e.qty},${cost}\n`;
+    });
+    const totalLiters = data.entries.reduce((s, e) => s + e.qty, 0);
+    csv += `\nTotal,${totalLiters.toFixed(1)},${(totalLiters * data.pricePerLiter).toFixed(2)}`;
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'dudh-tracker.csv';
+    a.click();
+    showToast('⬇️ CSV download ho gaya!');
+  }
+
+  function saveData() {
+    localStorage.setItem('milkTracker', JSON.stringify(data));
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  // Init
+  renderTable();
+  updateSummary();
+</script>
+</body>
+</html>
