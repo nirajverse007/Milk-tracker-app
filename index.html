@@ -1,640 +1,1055 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🥛 Milk Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0d1117;
-    --card: #161b22;
-    --card2: #1c2330;
-    --border: #30363d;
-    --accent: #58a6ff;
-    --accent2: #3fb950;
-    --accent3: #f78166;
-    --accent4: #e3b341;
-    --text: #e6edf3;
-    --muted: #8b949e;
-    --input-bg: #0d1117;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥛 Milk Tracker - दूध हिसाब किताब</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans', sans-serif;
-    min-height: 100vh;
-    padding: 16px;
-  }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-  h1 {
-    font-family: 'Baloo 2', cursive;
-    font-size: 2rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #58a6ff, #3fb950);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-align: center;
-    margin-bottom: 4px;
-  }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
 
-  .subtitle {
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.85rem;
-    margin-bottom: 20px;
-  }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
 
-  /* SUMMARY CARDS */
-  .summary-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
 
-  .summary-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
 
-  .summary-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-  }
+        .sidebar {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            height: fit-content;
+        }
 
-  .card-blue::before { background: var(--accent); }
-  .card-green::before { background: var(--accent2); }
-  .card-yellow::before { background: var(--accent4); }
-  .card-red::before { background: var(--accent3); }
+        .add-supplier-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+            font-weight: bold;
+        }
 
-  .summary-icon { font-size: 1.5rem; margin-bottom: 4px; }
-  .summary-value {
-    font-family: 'Baloo 2', cursive;
-    font-size: 1.5rem;
-    font-weight: 800;
-    line-height: 1;
-  }
-  .card-blue .summary-value { color: var(--accent); }
-  .card-green .summary-value { color: var(--accent2); }
-  .card-yellow .summary-value { color: var(--accent4); }
-  .card-red .summary-value { color: var(--accent3); }
+        .add-supplier-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
 
-  .summary-label {
-    font-size: 0.72rem;
-    color: var(--muted);
-    margin-top: 3px;
-  }
+        .supplier-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
 
-  /* SECTIONS */
-  .section {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
-    margin-bottom: 16px;
-  }
+        .supplier-card {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
 
-  .section-title {
-    font-family: 'Baloo 2', cursive;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--accent);
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
+        .supplier-card:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
 
-  /* FORM */
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
+        .supplier-card.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
 
-  .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .supplier-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
 
-  label {
-    font-size: 0.78rem;
-    color: var(--muted);
-    font-weight: 600;
-  }
+        .supplier-card p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
 
-  input {
-    background: var(--input-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 11px;
-    color: var(--text);
-    font-size: 0.9rem;
-    font-family: 'Noto Sans', sans-serif;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
 
-  input:focus { border-color: var(--accent); }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
 
-  .btn {
-    border: none;
-    border-radius: 9px;
-    padding: 10px 16px;
-    font-family: 'Baloo 2', cursive;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
-  }
+        .empty-state h2 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
 
-  .btn-primary {
-    background: linear-gradient(135deg, #1f6feb, #388bfd);
-    color: white;
-  }
+        .supplier-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
 
-  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(56,139,253,0.3); }
+        .supplier-info h2 {
+            color: #333;
+            margin-bottom: 5px;
+        }
 
-  .btn-success {
-    background: linear-gradient(135deg, #2ea043, #3fb950);
-    color: white;
-  }
+        .supplier-info p {
+            color: #666;
+        }
 
-  .btn-export {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    color: var(--accent4);
-    font-size: 0.85rem;
-    padding: 8px 12px;
-    width: auto;
-  }
+        .settings-btn {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
 
-  .btn-export:hover { border-color: var(--accent4); }
+        .settings-btn:hover {
+            background: #e9ecef;
+        }
 
-  /* PRICE SETTING */
-  .price-row {
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-  }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
 
-  .price-row .form-group { flex: 1; }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
 
-  /* TABLE */
-  .table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
 
-  .table-scroll { overflow-x: auto; }
+        .stat-card p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85rem;
-  }
+        .input-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
 
-  thead tr {
-    background: var(--card2);
-  }
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
 
-  th {
-    padding: 10px 10px;
-    text-align: left;
-    color: var(--muted);
-    font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid var(--border);
-  }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
 
-  td {
-    padding: 10px 10px;
-    border-bottom: 1px solid var(--border);
-    vertical-align: middle;
-  }
+        .form-group label {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
 
-  tr:last-child td { border-bottom: none; }
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
 
-  tr:hover td { background: var(--card2); }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
 
-  .qty-badge {
-    background: rgba(63,185,80,0.15);
-    color: var(--accent2);
-    border-radius: 6px;
-    padding: 2px 8px;
-    font-weight: 600;
-    font-size: 0.82rem;
-  }
+        .add-btn {
+            padding: 12px 25px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            height: fit-content;
+            font-weight: bold;
+        }
 
-  .price-text { color: var(--accent4); font-weight: 600; }
+        .add-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
 
-  .action-btns { display: flex; gap: 6px; }
+        .entries-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
 
-  .btn-sm {
-    border: none;
-    border-radius: 6px;
-    padding: 4px 9px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    font-family: 'Noto Sans', sans-serif;
-  }
+        .entries-table th,
+        .entries-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
 
-  .btn-edit { background: rgba(56,139,253,0.15); color: var(--accent); }
-  .btn-edit:hover { background: rgba(56,139,253,0.3); }
-  .btn-del { background: rgba(247,129,102,0.15); color: var(--accent3); }
-  .btn-del:hover { background: rgba(247,129,102,0.3); }
+        .entries-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
 
-  .empty-msg {
-    text-align: center;
-    color: var(--muted);
-    padding: 30px;
-    font-size: 0.9rem;
-  }
+        .entries-table tr:hover {
+            background: #f8f9fa;
+        }
 
-  /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: var(--card2);
-    border: 1px solid var(--accent2);
-    color: var(--accent2);
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    transition: transform 0.3s ease;
-    z-index: 999;
-    white-space: nowrap;
-  }
+        .delete-btn {
+            padding: 6px 12px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
 
-  .toast.show { transform: translateX(-50%) translateY(0); }
+        .delete-btn:hover {
+            background: #c82333;
+        }
 
-  /* MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 100;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
+        /* Modal Styles - Fixed */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
 
-  .modal-overlay.open { display: flex; }
+        .modal-overlay.show {
+            display: flex !important;
+        }
 
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    width: 100%;
-    max-width: 360px;
-  }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
 
-  .modal-title {
-    font-family: 'Baloo 2', cursive;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 14px;
-    color: var(--accent);
-  }
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
 
-  .modal-btns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 14px;
-  }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-  .btn-cancel {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    color: var(--muted);
-  }
+        .modal-header h2 {
+            color: #333;
+        }
 
-  .start-date-info {
-    background: var(--card2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 14px;
-    font-size: 0.85rem;
-    color: var(--muted);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            background: none;
+            border: none;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-  .start-date-info span { color: var(--accent); font-weight: 600; }
+        .close-btn:hover {
+            color: #333;
+        }
 
-  .avg-badge {
-    background: rgba(88,166,255,0.1);
-    color: var(--accent);
-    border-radius: 6px;
-    padding: 2px 8px;
-    font-size: 0.78rem;
-  }
-</style>
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .modal-form label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: -10px;
+        }
+
+        .modal-form input {
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .modal-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .save-btn {
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .month-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .month-btn {
+            padding: 8px 16px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .month-btn:hover {
+            background: #dee2e6;
+        }
+
+        .month-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .supplier-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        .total-section {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .total-section h3 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .highlight {
+            background: yellow;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🥛 Milk Tracker</h1>
+            <p>अपने सभी दूध विक्रेताओं का हिसाब एक ही जगह</p>
+        </div>
 
-<h1>🥛 Milk Tracker</h1>
-<p class="subtitle">Ghar ka dudh — hisaab bilkul sahi!</p>
+        <div class="main-grid">
+            <div class="sidebar">
+                <button class="add-supplier-btn" id="addSupplierBtn" type="button">
+                    + नया विक्रेता जोड़ें
+                </button>
+                <div class="supplier-list" id="supplierList">
+                    <div class="no-data">कोई विक्रेता नहीं</div>
+                </div>
+            </div>
 
-<!-- SUMMARY CARDS -->
-<div class="summary-grid">
-  <div class="summary-card card-blue">
-    <div class="summary-icon">📅</div>
-    <div class="summary-value" id="totalDays">0</div>
-    <div class="summary-label">Total Din</div>
-  </div>
-  <div class="summary-card card-green">
-    <div class="summary-icon">🥛</div>
-    <div class="summary-value" id="totalLiters">0L</div>
-    <div class="summary-label">Total Milk</div>
-  </div>
-  <div class="summary-card card-yellow">
-    <div class="summary-icon">💰</div>
-    <div class="summary-value" id="totalCost">₹0</div>
-    <div class="summary-label">Total Kharcha</div>
-  </div>
-  <div class="summary-card card-red">
-    <div class="summary-icon">📊</div>
-    <div class="summary-value" id="avgPerDay">0L</div>
-    <div class="summary-label">Avg / Din</div>
-  </div>
-</div>
+            <div class="main-content">
+                <div id="emptyState" class="empty-state">
+                    <h2>👈 बाईं तरफ से एक विक्रेता चुनें</h2>
+                    <p>या नया विक्रेता जोड़ने के लिए ऊपर बटन दबाएं</p>
+                </div>
 
-<!-- SETTINGS -->
-<div class="section">
-  <div class="section-title">⚙️ Settings</div>
-  <div class="start-date-info">
-    <span>Starting Date:</span>
-    <span id="startDateDisplay">Set nahi hua</span>
-  </div>
-  <div class="price-row">
-    <div class="form-group">
-      <label>💰 Price per Liter (₹)</label>
-      <input type="number" id="pricePerLiter" placeholder="e.g. 60" min="0" step="0.5">
+                <div id="supplierDetails" style="display: none;">
+                    <div class="supplier-header">
+                        <div class="supplier-info">
+                            <h2 id="supplierName">विक्रेता का नाम</h2>
+                            <p id="supplierDate">शुरुआत की तारीख: 01/01/2024</p>
+                        </div>
+                        <button class="settings-btn" id="settingsBtn" type="button">
+                            ⚙️ सेटिंग्स
+                        </button>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h3 id="totalLiters">0</h3>
+                            <p>कुल लीटर</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="totalDays">0</h3>
+                            <p>कुल दिन</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3 id="totalAmount">₹0</h3>
+                            <p>कुल राशि</p>
+                        </div>
+                    </div>
+
+                    <div class="input-section">
+                        <div class="input-grid">
+                            <div class="form-group">
+                                <label>📅 तारीख</label>
+                                <input type="date" id="entryDate">
+                            </div>
+                            <div class="form-group">
+                                <label>🥛 दूध (लीटर में)</label>
+                                <input type="number" id="entryMilk" step="0.1" placeholder="जैसे: 1.5">
+                            </div>
+                            <button class="add-btn" id="addEntryBtn" type="button">
+                                + जोड़ें
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="month-filter" id="monthFilter">
+                        <!-- Month buttons will be generated here -->
+                    </div>
+
+                    <table class="entries-table">
+                        <thead>
+                            <tr>
+                                <th>तारीख</th>
+                                <th>दिन</th>
+                                <th>दूध (L)</th>
+                                <th>रेट (₹/L)</th>
+                                <th>राशि (₹)</th>
+                                <th>हटाएं</th>
+                            </tr>
+                        </thead>
+                        <tbody id="entriesTableBody">
+                            <!-- Entries will be loaded here -->
+                        </tbody>
+                    </table>
+
+                    <div class="total-section">
+                        <h3 id="finalTotal">कुल राशि: ₹0</h3>
+                        <p id="finalDetails">0 दिन • 0 लीटर दूध</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <button class="btn btn-primary" style="width:auto;padding:9px 16px;" onclick="saveSettings()">Save</button>
-  </div>
-</div>
 
-<!-- ADD ENTRY -->
-<div class="section">
-  <div class="section-title">➕ Naya Entry Add Karo</div>
-  <div class="form-row">
-    <div class="form-group">
-      <label>📅 Date</label>
-      <input type="date" id="entryDate">
+    <!-- Add Supplier Modal -->
+    <div class="modal-overlay" id="supplierModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>नया विक्रेता जोड़ें</h2>
+                <button class="close-btn" id="closeSupplierModal" type="button">&times;</button>
+            </div>
+            <div class="modal-form">
+                <label>विक्रेता का नाम:</label>
+                <input type="text" id="newSupplierName" placeholder="जैसे: रामू भैया">
+
+                <label>शुरुआत की तारीख:</label>
+                <input type="date" id="newSupplierDate">
+
+                <label>1 लीटर का रेट (₹):</label>
+                <input type="number" id="newSupplierRate" placeholder="जैसे: 60" step="0.01">
+
+                <button class="save-btn" id="saveSupplierBtn" type="button">💾 सेव करें</button>
+            </div>
+        </div>
     </div>
-    <div class="form-group">
-      <label>🥛 Kitna Milk (L)</label>
-      <input type="number" id="entryQty" placeholder="e.g. 1.5" min="0" step="0.5">
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>सेटिंग्स</h2>
+                <button class="close-btn" id="closeSettingsModal" type="button">&times;</button>
+            </div>
+            <div class="modal-form">
+                <label>विक्रेता का नाम:</label>
+                <input type="text" id="editSupplierName">
+
+                <label>1 लीटर का रेट (₹):</label>
+                <input type="number" id="editSupplierRate" step="0.01">
+
+                <label>शुरुआत की तारीख:</label>
+                <input type="date" id="editSupplierDate">
+
+                <button class="save-btn" id="saveSettingsBtn" type="button">💾 अपडेट करें</button>
+                <button class="delete-btn" id="deleteSupplierBtn" type="button" style="margin-top: 10px; width: 100%;">
+                    🗑️ इस विक्रेता को हटाएं
+                </button>
+            </div>
+        </div>
     </div>
-  </div>
-  <button class="btn btn-success" onclick="addEntry()">✅ Entry Save Karo</button>
-</div>
 
-<!-- TABLE -->
-<div class="section">
-  <div class="table-header">
-    <div class="section-title" style="margin-bottom:0;">📋 Sab Entries</div>
-    <button class="btn btn-export" onclick="exportCSV()">⬇️ CSV</button>
-  </div>
-  <div class="table-scroll">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Date</th>
-          <th>Milk</th>
-          <th>Kharcha</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="entriesTable">
-        <tr><td colspan="5" class="empty-msg">Koi entry nahi abhi 🥛</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+    <script>
+        // Data Storage with fallback
+        let suppliers = [];
+        let currentSupplierId = null;
+        let currentMonthFilter = 'all';
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+        // Try to load from localStorage
+        try {
+            const stored = localStorage.getItem('milkSuppliers');
+            if (stored) {
+                suppliers = JSON.parse(stored);
+            }
+        } catch (e) {
+            console.log('localStorage not available, using memory storage');
+        }
 
-<!-- EDIT MODAL -->
-<div class="modal-overlay" id="editModal">
-  <div class="modal">
-    <div class="modal-title">✏️ Entry Edit Karo</div>
-    <input type="hidden" id="editIndex">
-    <div class="form-group" style="margin-bottom:12px;">
-      <label>📅 Date</label>
-      <input type="date" id="editDate">
-    </div>
-    <div class="form-group">
-      <label>🥛 Kitna Milk (L)</label>
-      <input type="number" id="editQty" min="0" step="0.5">
-    </div>
-    <div class="modal-btns">
-      <button class="btn btn-cancel" onclick="closeModal()">❌ Cancel</button>
-      <button class="btn btn-primary" onclick="saveEdit()">✅ Save</button>
-    </div>
-  </div>
-</div>
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('App initialized');
 
-<script>
-  let data = JSON.parse(localStorage.getItem('milkTracker') || '{"entries":[],"pricePerLiter":60,"startDate":null}');
+            // Set today's date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('entryDate').value = today;
+            document.getElementById('newSupplierDate').value = today;
 
-  // Set today's date as default
-  document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
-  document.getElementById('pricePerLiter').value = data.pricePerLiter || '';
+            // Setup event listeners
+            setupEventListeners();
 
-  function saveSettings() {
-    const price = parseFloat(document.getElementById('pricePerLiter').value);
-    if (isNaN(price) || price < 0) { showToast('❌ Sahi price daalo!'); return; }
-    data.pricePerLiter = price;
-    saveData();
-    renderTable();
-    updateSummary();
-    showToast('✅ Settings save ho gaya!');
-  }
+            // Render initial list
+            renderSupplierList();
+        });
 
-  function addEntry() {
-    const date = document.getElementById('entryDate').value;
-    const qty = parseFloat(document.getElementById('entryQty').value);
+        function setupEventListeners() {
+            // Add Supplier Button
+            document.getElementById('addSupplierBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Add supplier clicked');
+                openSupplierModal();
+            });
 
-    if (!date) { showToast('❌ Tarikh daalo!'); return; }
-    if (isNaN(qty) || qty <= 0) { showToast('❌ Sahi quantity daalo!'); return; }
+            // Close Supplier Modal
+            document.getElementById('closeSupplierModal').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSupplierModal();
+            });
 
-    // Check duplicate
-    const dup = data.entries.find(e => e.date === date);
-    if (dup) { showToast('⚠️ Is tarikh ki entry pehle se hai!'); return; }
+            // Save Supplier
+            document.getElementById('saveSupplierBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                saveSupplier();
+            });
 
-    data.entries.push({ date, qty });
-    data.entries.sort((a, b) => a.date.localeCompare(b.date));
+            // Settings Button
+            document.getElementById('settingsBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openSettingsModal();
+            });
 
-    // Auto-set start date
-    if (!data.startDate) {
-      data.startDate = data.entries[0].date;
-    } else {
-      data.startDate = data.entries[0].date;
-    }
+            // Close Settings Modal
+            document.getElementById('closeSettingsModal').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                closeSettingsModal();
+            });
 
-    document.getElementById('entryQty').value = '';
-    saveData();
-    renderTable();
-    updateSummary();
-    showToast('✅ Entry add ho gaya!');
-  }
+            // Save Settings
+            document.getElementById('saveSettingsBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                saveSettings();
+            });
 
-  function deleteEntry(index) {
-    if (!confirm('Is entry ko delete karein?')) return;
-    data.entries.splice(index, 1);
-    if (data.entries.length > 0) {
-      data.startDate = data.entries[0].date;
-    } else {
-      data.startDate = null;
-    }
-    saveData();
-    renderTable();
-    updateSummary();
-    showToast('🗑️ Entry delete ho gaya!');
-  }
+            // Delete Supplier
+            document.getElementById('deleteSupplierBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                deleteSupplier();
+            });
 
-  function openEdit(index) {
-    const entry = data.entries[index];
-    document.getElementById('editIndex').value = index;
-    document.getElementById('editDate').value = entry.date;
-    document.getElementById('editQty').value = entry.qty;
-    document.getElementById('editModal').classList.add('open');
-  }
+            // Add Entry
+            document.getElementById('addEntryBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                addEntry();
+            });
 
-  function closeModal() {
-    document.getElementById('editModal').classList.remove('open');
-  }
+            // Close modals when clicking outside
+            document.getElementById('supplierModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeSupplierModal();
+                }
+            });
 
-  function saveEdit() {
-    const index = parseInt(document.getElementById('editIndex').value);
-    const date = document.getElementById('editDate').value;
-    const qty = parseFloat(document.getElementById('editQty').value);
+            document.getElementById('settingsModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeSettingsModal();
+                }
+            });
 
-    if (!date || isNaN(qty) || qty <= 0) { showToast('❌ Sahi data daalo!'); return; }
+            // Enter key support for inputs
+            document.getElementById('newSupplierName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveSupplier();
+            });
+            document.getElementById('newSupplierRate').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') saveSupplier();
+            });
+        }
 
-    // Duplicate check (except self)
-    const dup = data.entries.find((e, i) => e.date === date && i !== index);
-    if (dup) { showToast('⚠️ Is tarikh ki entry pehle se hai!'); return; }
+        // Modal Functions
+        function openSupplierModal() {
+            console.log('Opening supplier modal');
+            const modal = document.getElementById('supplierModal');
+            modal.classList.add('show');
+            document.getElementById('newSupplierName').focus();
+        }
 
-    data.entries[index] = { date, qty };
-    data.entries.sort((a, b) => a.date.localeCompare(b.date));
-    data.startDate = data.entries[0].date;
+        function closeSupplierModal() {
+            console.log('Closing supplier modal');
+            document.getElementById('supplierModal').classList.remove('show');
+            // Clear inputs
+            document.getElementById('newSupplierName').value = '';
+            document.getElementById('newSupplierRate').value = '';
+        }
 
-    saveData();
-    renderTable();
-    updateSummary();
-    closeModal();
-    showToast('✅ Entry update ho gaya!');
-  }
+        function openSettingsModal() {
+            const supplier = suppliers.find(s => s.id === currentSupplierId);
+            if (!supplier) return;
 
-  function formatDate(dateStr) {
-    const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('hi-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-  }
+            document.getElementById('editSupplierName').value = supplier.name;
+            document.getElementById('editSupplierRate').value = supplier.ratePerLiter;
+            document.getElementById('editSupplierDate').value = supplier.startDate;
 
-  function renderTable() {
-    const tbody = document.getElementById('entriesTable');
-    if (data.entries.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-msg">Koi entry nahi abhi 🥛</td></tr>';
-      return;
-    }
+            document.getElementById('settingsModal').classList.add('show');
+        }
 
-    tbody.innerHTML = data.entries.map((e, i) => {
-      const cost = (e.qty * (data.pricePerLiter || 0)).toFixed(2);
-      return `<tr>
-        <td style="color:var(--muted);font-size:0.78rem;">${i + 1}</td>
-        <td style="font-size:0.82rem;">${formatDate(e.date)}</td>
-        <td><span class="qty-badge">${e.qty}L</span></td>
-        <td class="price-text">₹${cost}</td>
-        <td>
-          <div class="action-btns">
-            <button class="btn-sm btn-edit" onclick="openEdit(${i})">✏️</button>
-            <button class="btn-sm btn-del" onclick="deleteEntry(${i})">🗑️</button>
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
-  }
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
 
-  function updateSummary() {
-    const entries = data.entries;
-    const totalDays = entries.length;
-    const totalLiters = entries.reduce((s, e) => s + e.qty, 0);
-    const totalCost = totalLiters * (data.pricePerLiter || 0);
-    const avg = totalDays > 0 ? (totalLiters / totalDays).toFixed(2) : 0;
+        // Supplier Functions
+        function saveSupplier() {
+            const name = document.getElementById('newSupplierName').value.trim();
+            const date = document.getElementById('newSupplierDate').value;
+            const rate = parseFloat(document.getElementById('newSupplierRate').value);
 
-    document.getElementById('totalDays').textContent = totalDays;
-    document.getElementById('totalLiters').textContent = totalLiters.toFixed(1) + 'L';
-    document.getElementById('totalCost').textContent = '₹' + totalCost.toFixed(0);
-    document.getElementById('avgPerDay').textContent = avg + 'L';
+            if (!name) {
+                alert('कृपया विक्रेता का नाम डालें!');
+                return;
+            }
+            if (!date) {
+                alert('कृपया तारीख चुनें!');
+                return;
+            }
+            if (!rate || rate <= 0) {
+                alert('कृपया सही रेट डालें!');
+                return;
+            }
 
-    if (data.startDate) {
-      document.getElementById('startDateDisplay').textContent = formatDate(data.startDate);
-    } else {
-      document.getElementById('startDateDisplay').textContent = 'Set nahi hua';
-    }
-  }
+            const supplier = {
+                id: Date.now(),
+                name: name,
+                startDate: date,
+                ratePerLiter: rate,
+                entries: []
+            };
 
-  function exportCSV() {
-    if (data.entries.length === 0) { showToast('❌ Koi data nahi export ke liye!'); return; }
-    let csv = 'Tarikh,Dudh (L),Kharcha (Rs)\n';
-    data.entries.forEach(e => {
-      const cost = (e.qty * (data.pricePerLiter || 0)).toFixed(2);
-      csv += `${e.date},${e.qty},${cost}\n`;
-    });
-    const totalLiters = data.entries.reduce((s, e) => s + e.qty, 0);
-    csv += `\nTotal,${totalLiters.toFixed(1)},${(totalLiters * data.pricePerLiter).toFixed(2)}`;
+            suppliers.push(supplier);
+            saveData();
+            renderSupplierList();
+            closeSupplierModal();
+            selectSupplier(supplier.id);
 
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'dudh-tracker.csv';
-    a.click();
-    showToast('⬇️ CSV download ho gaya!');
-  }
+            alert('विक्रेता सफलतापूर्वक जोड़ा गया!');
+        }
 
-  function saveData() {
-    localStorage.setItem('milkTracker', JSON.stringify(data));
-  }
+        function renderSupplierList() {
+            const list = document.getElementById('supplierList');
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 2500);
-  }
+            if (suppliers.length === 0) {
+                list.innerHTML = '<div class="no-data">कोई विक्रेता नहीं<br>ऊपर बटन दबाकर जोड़ें</div>';
+                return;
+            }
 
-  // Init
-  renderTable();
-  updateSummary();
-</script>
+            list.innerHTML = '';
+            suppliers.forEach(supplier => {
+                const card = document.createElement('div');
+                card.className = 'supplier-card';
+                if (supplier.id === currentSupplierId) {
+                    card.classList.add('active');
+                }
+
+                const totalLiters = supplier.entries.reduce((sum, entry) => sum + entry.liters, 0);
+                const totalAmount = totalLiters * supplier.ratePerLiter;
+
+                card.innerHTML = `
+                    <h3>${supplier.name}</h3>
+                    <p>₹${supplier.ratePerLiter}/L • ₹${totalAmount.toFixed(2)} कुल • ${supplier.entries.length} दिन</p>
+                `;
+
+                card.addEventListener('click', function() {
+                    selectSupplier(supplier.id);
+                });
+
+                list.appendChild(card);
+            });
+        }
+
+        function selectSupplier(id) {
+            currentSupplierId = id;
+            currentMonthFilter = 'all';
+            renderSupplierList();
+            showSupplierDetails();
+        }
+
+        function showSupplierDetails() {
+            const supplier = suppliers.find(s => s.id === currentSupplierId);
+            if (!supplier) return;
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('supplierDetails').style.display = 'block';
+
+            document.getElementById('supplierName').textContent = supplier.name;
+            document.getElementById('supplierDate').textContent = `शुरुआत की तारीख: ${formatDate(supplier.startDate)} • ₹${supplier.ratePerLiter}/L`;
+
+            updateStats();
+            renderMonthFilter();
+            renderEntries();
+        }
+
+        function updateStats() {
+            const supplier = suppliers.find(s => s.id === currentSupplierId);
+            if (!supplier) return;
+
+            const filteredEntries = getFilteredEntries();
+            const totalLiters = filteredEntries.reduce((sum, entry) => sum + entry.liters, 0);
+            const totalDays = filteredEntries.length;
+            const totalAmount = totalLiters * supplier.ratePerLiter;
+
+            document.getElementById('totalLiters').textContent = totalLiters.toFixed(2);
+            document.getElementById('totalDays').textContent = totalDays;
+            document.getElementById('totalAmount').textContent = `₹${totalAmount.toFixed(2)}`;
+            document.getElementById('finalTotal').textContent = `कुल राशि: ₹${totalAmount.toFixed(2)}`;
+            document.getElementById('finalDetails').textContent = `${totalDays} दिन • ${totalLiters.toFixed(2)} लीटर दूध`;
+        }
+
+        function getFilteredEntries() {
+            const supplier = suppliers.find(s => s.id === currentSupplierId);
+            if (!supplier) return [];
+
+            if (currentMonthFilter === 'all') {
+                return supplier.entries;
+            }
+
+            return supplier.entries.filter(entry => {
+                const entryDate = new Date(entry.date);
+                return entryDate.getMonth() === currentMonthFilter.month && 
+                       entryDate.getFullYear() === currentMonthFilter.year;
+            });
+        }
+
+        function renderMonthFilter() {
+            const supplier = suppliers.find(s => s.id === currentSupplierId);
+            if (!supplier || supplier.entries.length === 0) {
+                document.getElementById('monthFilter').innerHTML = '';
+                return;
+            }
+
+            const months = new Map();
+            supplier.entries.forEach(entry => {
+                const date = new Date(entry.date);
+                const key = `${date.getFullYear()}-${date.getMonth()}`;
+                const label = date.toLocaleDateString('hi-IN', { month: 'short', year: 'numeric' });
+                months.set(key, { month: date.getMonth(), year: date.getFullYear(), label });
+            });
+
+            const filterDiv = document.getElementById('monthFilter');
+            filterDiv.innerHTML = '<button class="month-btn ' + (currentMonthFilter === 'all' ? 'active' : '') + '" data-filter="all">सभी</button>';
+
+            Array.from(months.values()).reverse().forEach(m => {
+                const isActive = currentMonthFilter !== 'all' && 
+                                currentMonthFilter.month === m.month && 
+                                currentMonthFilter.year === m.year;
+                filterDiv.innerHTML += `<button class="month-btn ${isActive ? 'active' : ''}" data-month="${m.month}" data-year="${m.year}">${m.label}</button>`;
+            });
+
+            // Add click listeners to month buttons
+            filterDiv.querySelectorAll('.month-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const filter = this.getAttribute('data-filter');
+                    if (filter === 'all') {
+                        currentMonthFilter = 'all';
+                    } else {
+                        currentMonthFilter = {
+                            month: parseInt(this.getAttribute('data-month')),
+                            year: parseInt(this.getAttribute('data-year'))
+                        };
+                    }
+                    renderMonthFilter();
+                    renderEntries();
+                    updateStats();
+                });
+            });
+        }
+
+        function renderEntries() {
+            const supplier = suppliers.find(s => s.id === currentSupplierId);
+            const tbody = document.getElementById('entriesTableBody');
+            tbody.innerHTML = '';
+
+            const filteredEntries = getFilteredEntries();
+
+            if (filteredEntries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="no-data">कोई एंट्री नहीं</td></tr>';
+                return;
+            }
+
+            // Sort by date descending
+            filteredEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            filteredEntries.forEach(entry => {
+                const row = document.createElement('tr');
+                const amount = entry.liters * supplier.ratePerLiter;
+                const dayName = new Date(entry.date).toLocaleDateString('hi-IN', { weekday: 'short' });
+
+                row.innerHTML = `
+                    <td>${formatDate(entry.date)}</td>
+                    <td>${dayName}</td>
+                    <td><strong>${entry.liters.toFixed(2)}</strong></td>
+                    <td>₹${supplier.ratePerLiter}</td>
+                    <td>₹${amount.toFixed(2)}</td>
+                    <td><button class="delete-btn" data-id="${entry.id}">हटाएं</button></td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Add delete listeners
+            tbody.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const entryId = parseInt(this.getAttribute('data-id'));
+                    deleteEntry(entryId);
+                });
+            });
+        }
+
+        function addEntry() {
+            const date = document.getElementById('entryDate').value;
+            const liters = parseFloat(document.getElementById('entryMilk').value);
+
+            if (!date) {
+                alert('कृपया तारीख चुनें!');
+                return;
+            }
+            if (!liters || liters <= 0) {
+                alert('कृपया सही मात्रा डालें!');
+                return;
+            }
+
+            const supplier = suppliers.find(s => s.id === currentSupplierId);
+            supplier.entries.push({
+                id: Date.now(),
+                date: date,
+                liters: liters
+            });
+
+            saveData();
+            document.getElementById('entryMilk').value = '';
+            renderEntries();
+            updateStats();
+            renderSupplierList();
+            renderMonthFilter();
+
+            alert('एंट्री सफलतापूर्वक जोड़ी गई!');
+        }
+
+        function deleteEntry(entryId) {
+            if (!confirm('क्या आप इस एंट्री को हटाना चाहते हैं?')) return;
+
+            const supplier = suppliers.find(s => s.id === currentSupplierId);
+            supplier.entries = supplier.entries.filter(e => e.id !== entryId);
+
+            saveData();
+            renderEntries();
+            updateStats();
+            renderSupplierList();
+            renderMonthFilter();
+        }
+
+        function saveSettings() {
+            const supplier = suppliers.find(s => s.id === currentSupplierId);
+            if (!supplier) return;
+
+            const newName = document.getElementById('editSupplierName').value.trim();
+            const newRate = parseFloat(document.getElementById('editSupplierRate').value);
+            const newDate = document.getElementById('editSupplierDate').value;
+
+            if (!newName) {
+                alert('नाम खाली नहीं हो सकता!');
+                return;
+            }
+            if (!newRate || newRate <= 0) {
+                alert('सही रेट डालें!');
+                return;
+            }
+
+            supplier.name = newName;
+            supplier.ratePerLiter = newRate;
+            supplier.startDate = newDate;
+
+            saveData();
+            closeSettingsModal();
+            renderSupplierList();
+            showSupplierDetails();
+
+            alert('सेटिंग्स अपडेट हो गईं!');
+        }
+
+        function deleteSupplier() {
+            if (!confirm('क्या आप इस विक्रेता और उनका सारा डेटा हटाना चाहते हैं? यह वापस नहीं हो सकता!')) return;
+
+            suppliers = suppliers.filter(s => s.id !== currentSupplierId);
+            currentSupplierId = null;
+
+            saveData();
+            closeSettingsModal();
+            renderSupplierList();
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('supplierDetails').style.display = 'none';
+
+            alert('विक्रेता हटा दिया गया!');
+        }
+
+        // Utility Functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('hi-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('milkSuppliers', JSON.stringify(suppliers));
+            } catch (e) {
+                console.log('Could not save to localStorage');
+            }
+        }
+    </script>
 </body>
 </html>
